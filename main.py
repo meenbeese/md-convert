@@ -37,15 +37,14 @@ class MarkdownConverterApp(ctk.CTk):
 
     def convert_to_markdown(self):
         try:
-            with open(self.file_path, "r") as file:
-                content = file.read()
-
             markitdown = MarkItDown()
-            result = markitdown.convert(content)
+            result = markitdown.convert(self.file_path)
+
+            markdown_content = result.text_content
 
             markdown_file_path = os.path.splitext(self.file_path)[0] + ".md"
-            with open(markdown_file_path, "w") as md_file:
-                md_file.write(result)
+            with open(markdown_file_path, "w", encoding="utf-8") as md_file:
+                md_file.write(markdown_content)
 
             messagebox.showinfo("Success", f"Markdown file saved at:\n{markdown_file_path}")
         except Exception as e:
