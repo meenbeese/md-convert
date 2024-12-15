@@ -1,3 +1,4 @@
+import webbrowser
 import customtkinter as ctk
 from tkinter import filedialog, messagebox, ttk
 import os
@@ -11,7 +12,7 @@ class MarkdownConverterApp(ctk.CTk):
         super().__init__()
 
         self.title("File to Markdown Converter")
-        self.geometry("700x500")
+        self.geometry("700x600")
         self.configure(padx=20, pady=20)
 
         self.heading_label = ctk.CTkLabel(self, text="Convert Files to Markdown", font=("Arial", 24, "bold"))
@@ -55,6 +56,38 @@ class MarkdownConverterApp(ctk.CTk):
         self.progress_bar = ttk.Progressbar(self, orient="horizontal", length=300, mode="determinate")
         self.progress_bar.pack(pady=10)
         self.progress_bar.pack_forget()
+
+        self.about_frame = ctk.CTkFrame(self, corner_radius=10)
+        self.about_frame.pack(fill="x", side="bottom", pady=10)
+
+        self.about_label = ctk.CTkLabel(
+            self.about_frame,
+            text=("File to Markdown Converter\n"
+                  "Version: 1.0\n"
+                  "Developer: Kuzey Bilgin\n"
+                  "This tool allows you to convert files of various formats into Markdown."),
+            font=("Arial", 12),
+            justify="center",
+            wraplength=650,
+        )
+        self.about_label.pack(pady=10, padx=10)
+
+        self.create_link_button(self.about_frame, "Official Documentation", "https://github.com/microsoft/markitdown")
+        self.create_link_button(self.about_frame, "GitHub Repository", "https://github.com/meenbeese/markitdown-demo")
+        self.create_link_button(self.about_frame, "Give Feedback", "mailto:meenbeese@tutanota.com")
+
+    def create_link_button(self, parent, label, url):
+        def open_link():
+            if url.startswith("mailto:"):
+                if os.name == "nt":
+                    os.startfile(url)
+                else:
+                    os.system(f'open {url}')
+            else:
+                webbrowser.open(url)
+
+        link_button = ctk.CTkButton(parent, text=label, command=open_link, fg_color="#007acc", hover_color="#005f9e")
+        link_button.pack(pady=5)
 
     def select_file(self):
         file_path = filedialog.askopenfilename(
