@@ -11,7 +11,7 @@ class MarkdownConverterApp(ctk.CTk):
         super().__init__()
 
         self.title("File to Markdown Converter")
-        self.geometry("600x400")
+        self.geometry("600x500")
 
         self.heading_label = ctk.CTkLabel(self, text="Convert File to Markdown", font=("Arial", 20))
         self.heading_label.pack(pady=10)
@@ -41,6 +41,9 @@ class MarkdownConverterApp(ctk.CTk):
 
         self.convert_button = ctk.CTkButton(self, text="Convert to Markdown", command=self.convert_to_markdown, state="disabled")
         self.convert_button.pack(pady=10)
+
+        self.batch_convert_button = ctk.CTkButton(self, text="Batch Convert Files", command=self.batch_convert_files)
+        self.batch_convert_button.pack(pady=10)
 
     def select_file(self):
         file_path = filedialog.askopenfilename(
@@ -80,6 +83,41 @@ class MarkdownConverterApp(ctk.CTk):
             messagebox.showinfo("Success", f"Markdown file saved at:\n{markdown_file_path}")
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred:\n{e}")
+
+    def batch_convert_files(self):
+        file_paths = filedialog.askopenfilenames(
+            title="Select files",
+            filetypes=[
+                ("All Supported Files", "*.pdf *.pptx *.docx *.xlsx *.jpg *.jpeg *.png *.wav *.mp3 *.html *.csv *.json *.xml"),
+                ("All Files", "*.*"),
+            ],
+        )
+        if not file_paths:
+            messagebox.showwarning("No Files Selected", "No files were selected for batch conversion.")
+            return
+
+        success_count = 0
+        failure_count = 0
+
+        for file_path in file_paths:
+            try:
+                markitdown = MarkItDown()
+                result = markitdown.convert(file_path)
+                markdown_content = result.text_content
+
+                markdown_file_path = os.path.splitext(file_path)[0] + ".md"
+                with open(markdown_file_path, "w", encoding="utf-8") as md_file:
+                    md_file.write(markdown_content)
+
+                success_count += 1
+            except Exception as e:
+                print(f"Error converting {file_path}: {e}")
+                failure_count += 1
+
+        summary = (f"Batch Conversion Complete:\n\n"
+                   f"Successfully converted: {success_count} file(s)\n"
+                   f"Failed conversions: {failure_count} file(s)")
+        messagebox.showinfo("Batch Conversion", summary)
 
 if __name__ == "__main__":
     app = MarkdownConverterApp()
