@@ -20,7 +20,7 @@ Basic wrapper around the [MarkItDown](https://github.com/microsoft/markitdown) l
 
 ## Releases
 
-Check the [releases page](https://github.com/meenbeese/markitdown-demo/releases/latest) to get the .exe file of the program.
+Check the [releases page](https://github.com/meenbeese/md-convert/releases/latest) to get the .exe file of the program.
 
 ## License
 
