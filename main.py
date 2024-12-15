@@ -11,22 +11,53 @@ class MarkdownConverterApp(ctk.CTk):
         super().__init__()
 
         self.title("File to Markdown Converter")
-        self.geometry("500x300")
+        self.geometry("600x400")
 
         self.heading_label = ctk.CTkLabel(self, text="Convert File to Markdown", font=("Arial", 20))
-        self.heading_label.pack(pady=20)
+        self.heading_label.pack(pady=10)
+
+        self.supported_formats_label = ctk.CTkLabel(
+            self,
+            text=("Supported Formats:\n"
+                  "PDF (.pdf)\n"
+                  "PowerPoint (.pptx)\n"
+                  "Word (.docx)\n"
+                  "Excel (.xlsx)\n"
+                  "Images (EXIF metadata, OCR)\n"
+                  "Audio (EXIF metadata, speech transcription)\n"
+                  "HTML (Wikipedia, etc.)\n"
+                  "Other text formats (csv, json, xml, etc.)"),
+            wraplength=500,
+            font=("Arial", 12),
+            justify="left"
+        )
+        self.supported_formats_label.pack(pady=10)
 
         self.select_file_button = ctk.CTkButton(self, text="Select File", command=self.select_file)
         self.select_file_button.pack(pady=10)
 
-        self.file_path_label = ctk.CTkLabel(self, text="No file selected", wraplength=400, font=("Arial", 12))
+        self.file_path_label = ctk.CTkLabel(self, text="No file selected", wraplength=500, font=("Arial", 12))
         self.file_path_label.pack(pady=10)
 
         self.convert_button = ctk.CTkButton(self, text="Convert to Markdown", command=self.convert_to_markdown, state="disabled")
         self.convert_button.pack(pady=10)
 
     def select_file(self):
-        file_path = filedialog.askopenfilename(title="Select a file", filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")])
+        file_path = filedialog.askopenfilename(
+            title="Select a file",
+            filetypes=[
+                ("All Supported Files", "*.pdf *.pptx *.docx *.xlsx *.jpg *.jpeg *.png *.wav *.mp3 *.html *.csv *.json *.xml"),
+                ("PDF Files", "*.pdf"),
+                ("PowerPoint Files", "*.pptx"),
+                ("Word Files", "*.docx"),
+                ("Excel Files", "*.xlsx"),
+                ("Image Files", "*.jpg *.jpeg *.png"),
+                ("Audio Files", "*.wav *.mp3"),
+                ("HTML Files", "*.html"),
+                ("Text Files", "*.csv *.json *.xml"),
+                ("All Files", "*.*"),
+            ],
+        )
         if file_path:
             self.file_path_label.configure(text=file_path)
             self.file_path = file_path
@@ -38,8 +69,8 @@ class MarkdownConverterApp(ctk.CTk):
     def convert_to_markdown(self):
         try:
             markitdown = MarkItDown()
-            result = markitdown.convert(self.file_path)
 
+            result = markitdown.convert(self.file_path)
             markdown_content = result.text_content
 
             markdown_file_path = os.path.splitext(self.file_path)[0] + ".md"
