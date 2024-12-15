@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, ttk
 import os
 from markitdown import MarkItDown
 
@@ -11,39 +11,50 @@ class MarkdownConverterApp(ctk.CTk):
         super().__init__()
 
         self.title("File to Markdown Converter")
-        self.geometry("600x500")
+        self.geometry("700x500")
+        self.configure(padx=20, pady=20)
 
-        self.heading_label = ctk.CTkLabel(self, text="Convert File to Markdown", font=("Arial", 20))
+        self.heading_label = ctk.CTkLabel(self, text="Convert Files to Markdown", font=("Arial", 24, "bold"))
         self.heading_label.pack(pady=10)
 
+        self.supported_formats_frame = ctk.CTkFrame(self, corner_radius=10)
+        self.supported_formats_frame.pack(fill="x", pady=10)
+
         self.supported_formats_label = ctk.CTkLabel(
-            self,
+            self.supported_formats_frame,
             text=("Supported Formats:\n"
-                  "PDF (.pdf)\n"
-                  "PowerPoint (.pptx)\n"
-                  "Word (.docx)\n"
-                  "Excel (.xlsx)\n"
-                  "Images (EXIF metadata, OCR)\n"
-                  "Audio (EXIF metadata, speech transcription)\n"
-                  "HTML (Wikipedia, etc.)\n"
-                  "Other text formats (csv, json, xml, etc.)"),
-            wraplength=500,
+                  "- PDF (.pdf)\n"
+                  "- PowerPoint (.pptx)\n"
+                  "- Word (.docx)\n"
+                  "- Excel (.xlsx)\n"
+                  "- Images (EXIF metadata, OCR)\n"
+                  "- Audio (EXIF metadata, speech transcription)\n"
+                  "- HTML (Wikipedia, etc.)\n"
+                  "- Other text formats (csv, json, xml, etc.)"),
             font=("Arial", 12),
-            justify="left"
+            justify="left",
+            wraplength=650,
         )
-        self.supported_formats_label.pack(pady=10)
+        self.supported_formats_label.pack(pady=10, padx=10)
 
-        self.select_file_button = ctk.CTkButton(self, text="Select File", command=self.select_file)
-        self.select_file_button.pack(pady=10)
+        self.actions_frame = ctk.CTkFrame(self, corner_radius=10)
+        self.actions_frame.pack(fill="x", pady=10)
 
-        self.file_path_label = ctk.CTkLabel(self, text="No file selected", wraplength=500, font=("Arial", 12))
-        self.file_path_label.pack(pady=10)
+        self.file_path_label = ctk.CTkLabel(self.actions_frame, text="No file selected", font=("Arial", 12))
+        self.file_path_label.pack(fill="x", pady=(5, 15), padx=10)
 
-        self.convert_button = ctk.CTkButton(self, text="Convert to Markdown", command=self.convert_to_markdown, state="disabled")
-        self.convert_button.pack(pady=10)
+        self.select_file_button = ctk.CTkButton(self.actions_frame, text="Select File", command=self.select_file)
+        self.select_file_button.pack(side="left", padx=10, pady=10)
 
-        self.batch_convert_button = ctk.CTkButton(self, text="Batch Convert Files", command=self.batch_convert_files)
-        self.batch_convert_button.pack(pady=10)
+        self.convert_button = ctk.CTkButton(self.actions_frame, text="Convert to Markdown", command=self.convert_to_markdown, state="disabled")
+        self.convert_button.pack(side="left", padx=10, pady=10)
+
+        self.batch_convert_button = ctk.CTkButton(self.actions_frame, text="Batch Convert Files", command=self.batch_convert_files)
+        self.batch_convert_button.pack(side="left", padx=10, pady=10)
+
+        self.progress_bar = ttk.Progressbar(self, orient="horizontal", length=300, mode="determinate")
+        self.progress_bar.pack(pady=10)
+        self.progress_bar.pack_forget()
 
     def select_file(self):
         file_path = filedialog.askopenfilename(
@@ -62,7 +73,7 @@ class MarkdownConverterApp(ctk.CTk):
             ],
         )
         if file_path:
-            self.file_path_label.configure(text=file_path)
+            self.file_path_label.configure(text=f"Selected File: {file_path}")
             self.file_path = file_path
             self.convert_button.configure(state="normal")
         else:
@@ -96,10 +107,13 @@ class MarkdownConverterApp(ctk.CTk):
             messagebox.showwarning("No Files Selected", "No files were selected for batch conversion.")
             return
 
+        self.progress_bar.pack(pady=10)
+        self.progress_bar["maximum"] = len(file_paths)
+
         success_count = 0
         failure_count = 0
 
-        for file_path in file_paths:
+        for index, file_path in enumerate(file_paths, 1):
             try:
                 markitdown = MarkItDown()
                 result = markitdown.convert(file_path)
@@ -113,6 +127,11 @@ class MarkdownConverterApp(ctk.CTk):
             except Exception as e:
                 print(f"Error converting {file_path}: {e}")
                 failure_count += 1
+
+            self.progress_bar["value"] = index
+            self.update_idletasks()
+
+        self.progress_bar.pack_forget()
 
         summary = (f"Batch Conversion Complete:\n\n"
                    f"Successfully converted: {success_count} file(s)\n"
